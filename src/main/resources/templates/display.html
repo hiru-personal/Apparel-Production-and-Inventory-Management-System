@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Display</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+<div class="min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="mb-8 flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <img src="/images/dinusha-logo.png" alt="Dinusha logo" class="w-12 h-12 object-contain"/>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Dashboard Display</h1>
+                    <p class="text-gray-600 text-sm">Read-only dashboard tables view.</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div id="display-datetime" class="text-gray-700 text-sm mb-2"></div>
+                <div class="flex items-center justify-end gap-2">
+                    <a href="/login" class="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 inline-flex items-center">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </a>
+                    <button id="refresh-all-btn" type="button" class="px-3 py-1.5 text-xs rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh All
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="space-y-6">
+            <section class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Production Plans - Daily View</h4>
+                    <span id="display-daily-view-status" class="text-xs text-gray-500">Loading...</span>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Assigned Machine</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Note</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display-daily-plans-tbody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Production Plans - Weekly View</h4>
+                    <span id="display-weekly-view-status" class="text-xs text-gray-500">Loading...</span>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Select Week(s)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
+                        <label class="inline-flex items-center space-x-2"><input type="checkbox" class="display-week-checkbox" value="1"><span>Week 1</span></label>
+                        <label class="inline-flex items-center space-x-2"><input type="checkbox" class="display-week-checkbox" value="2"><span>Week 2</span></label>
+                        <label class="inline-flex items-center space-x-2"><input type="checkbox" class="display-week-checkbox" value="3"><span>Week 3</span></label>
+                        <label class="inline-flex items-center space-x-2"><input type="checkbox" class="display-week-checkbox" value="4"><span>Week 4</span></label>
+                        <label class="inline-flex items-center space-x-2"><input type="checkbox" class="display-week-checkbox" value="5"><span>Week 5</span></label>
+                    </div>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weekly Total Qty</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Week</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Assigned Machines</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display-weekly-plans-tbody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Production Plans - Monthly View (12 Months)</h4>
+                    <span id="display-monthly-view-status" class="text-xs text-gray-500">Loading...</span>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Filter Month</label>
+                    <select id="display-month-filter" class="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Months</option>
+                        <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Monthly Total Qty</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Assigned Machines</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display-monthly-plans-tbody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Inventory Table</h4>
+                    <span id="display-inventory-status" class="text-xs text-gray-500">Loading...</span>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Code</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Current Stock</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Min. Level</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display-inventory-tbody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Product Table</h4>
+                    <span id="display-products-status" class="text-xs text-gray-500">Loading...</span>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product Code</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product Name</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Current Quantity</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Target</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Remaining</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display-products-tbody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+    let displayPlans = [];
+    let displaySelectedMonth = 'all';
+
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function getPlanWeekNumber(dateStr) {
+        if (!dateStr) return null;
+        const date = new Date(dateStr + 'T00:00:00');
+        if (Number.isNaN(date.getTime())) return null;
+        const day = date.getDate();
+        if (day <= 7) return 1;
+        if (day <= 14) return 2;
+        if (day <= 21) return 3;
+        if (day <= 28) return 4;
+        return 5;
+    }
+
+    function getPlansForCurrentMonth(plans) {
+        const now = new Date();
+        return (plans || []).filter(p => {
+            if (!p || !p.endDate) return false;
+            const d = new Date(p.endDate + 'T00:00:00');
+            return !Number.isNaN(d.getTime()) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        });
+    }
+
+    function getPlansForCurrentYear(plans) {
+        const year = new Date().getFullYear();
+        return (plans || []).filter(p => {
+            if (!p || !p.endDate) return false;
+            const d = new Date(p.endDate + 'T00:00:00');
+            return !Number.isNaN(d.getTime()) && d.getFullYear() === year;
+        });
+    }
+
+    function renderDaily(plans) {
+        const tbody = document.getElementById('display-daily-plans-tbody');
+        const status = document.getElementById('display-daily-view-status');
+        if (!plans.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">No plans added yet.</td></tr>';
+            status.textContent = 'No data';
+            return;
+        }
+        tbody.innerHTML = plans.map(p => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.productName || p.productCode || '')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(String(p.quantity ?? ''))}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.endDate || '')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.assignedMachine || '')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.note || '')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.status || '')}</td>
+            </tr>`).join('');
+        status.textContent = `${plans.length} plan(s)`;
+    }
+
+    function renderWeekly(plans) {
+        const tbody = document.getElementById('display-weekly-plans-tbody');
+        const status = document.getElementById('display-weekly-view-status');
+        const selectedWeeks = Array.from(document.querySelectorAll('.display-week-checkbox:checked')).map(cb => parseInt(cb.value, 10));
+        const filteredPlans = getPlansForCurrentMonth(plans).filter(p => selectedWeeks.length === 0 || selectedWeeks.includes(getPlanWeekNumber(p.endDate)));
+        const grouped = new Map();
+        filteredPlans.forEach(p => {
+            const week = getPlanWeekNumber(p.endDate);
+            if (week == null) return;
+            const key = `${p.productCode || p.productName || 'UNKNOWN'}::${week}`;
+            if (!grouped.has(key)) grouped.set(key, { product: p.productName || p.productCode || '', totalQty: 0, weekLabel: `Week ${week}`, machines: new Set(), notes: new Set(), statuses: new Set() });
+            const row = grouped.get(key);
+            row.totalQty += Number(p.quantity || 0);
+            if (p.assignedMachine) row.machines.add(p.assignedMachine);
+            if (p.note) row.notes.add(p.note);
+            if (p.status) row.statuses.add(p.status);
+        });
+        const rows = Array.from(grouped.values());
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">No weekly targets found for selected week(s) in the current month.</td></tr>';
+            status.textContent = 'No data';
+            return;
+        }
+        tbody.innerHTML = rows.map(r => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(r.product)}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(String(r.totalQty))}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(r.weekLabel)}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(Array.from(r.machines).join(', ') || '-')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(Array.from(r.notes).join(' | ') || '-')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(Array.from(r.statuses).join(', ') || '-')}</td>
+            </tr>`).join('');
+        status.textContent = `${rows.length} row(s)`;
+    }
+
+    function renderMonthly(plans) {
+        const tbody = document.getElementById('display-monthly-plans-tbody');
+        const status = document.getElementById('display-monthly-view-status');
+        const currentYear = new Date().getFullYear();
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const grouped = new Map();
+        getPlansForCurrentYear(plans).forEach(p => {
+            if (!p.endDate) return;
+            const d = new Date(p.endDate + 'T00:00:00');
+            if (Number.isNaN(d.getTime())) return;
+            const monthIndex = d.getMonth();
+            const key = `${p.productCode || p.productName || 'UNKNOWN'}::${monthIndex}`;
+            if (!grouped.has(key)) grouped.set(key, { product: p.productName || p.productCode || '', monthIndex, totalQty: 0, machines: new Set(), notes: new Set(), statuses: new Set() });
+            const row = grouped.get(key);
+            row.totalQty += Number(p.quantity || 0);
+            if (p.assignedMachine) row.machines.add(p.assignedMachine);
+            if (p.note) row.notes.add(p.note);
+            if (p.status) row.statuses.add(p.status);
+        });
+        let rows = Array.from(grouped.values()).sort((a, b) => a.product.localeCompare(b.product));
+        if (displaySelectedMonth !== 'all') {
+            const selectedMonth = parseInt(displaySelectedMonth, 10);
+            rows = rows.filter(r => Number.isFinite(selectedMonth) && r.monthIndex === selectedMonth);
+        }
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">No monthly targets found for the selected month.</td></tr>';
+            status.textContent = 'No data';
+            return;
+        }
+        tbody.innerHTML = rows.map(r => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(r.product)}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(String(r.totalQty))}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(`${monthNames[r.monthIndex]} ${currentYear}`)}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(Array.from(r.machines).join(', ') || '-')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(Array.from(r.notes).join(' | ') || '-')}</td>
+              <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(Array.from(r.statuses).join(', ') || 'Planning')}</td>
+            </tr>`).join('');
+        status.textContent = `${rows.length} row(s)`;
+    }
+
+    async function loadPlans() {
+        const dailyStatus = document.getElementById('display-daily-view-status');
+        try {
+            const response = await fetch('/api/production-planning/plans');
+            if (!response.ok) throw new Error('Failed to load plans');
+            const plans = await response.json();
+            displayPlans = Array.isArray(plans) ? plans : [];
+            renderDaily(displayPlans);
+            renderWeekly(displayPlans);
+            renderMonthly(displayPlans);
+        } catch (e) {
+            dailyStatus.textContent = 'Error';
+            document.getElementById('display-weekly-view-status').textContent = 'Error';
+            document.getElementById('display-monthly-view-status').textContent = 'Error';
+        }
+    }
+
+    async function loadInventory() {
+        const tbody = document.getElementById('display-inventory-tbody');
+        const status = document.getElementById('display-inventory-status');
+        try {
+            const response = await fetch('/api/inventory/items');
+            if (!response.ok) throw new Error('Failed to load inventory');
+            const items = await response.json();
+            if (!Array.isArray(items) || !items.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">No inventory items found.</td></tr>';
+                status.textContent = 'No data';
+                return;
+            }
+            tbody.innerHTML = items.map(item => {
+                const isLowStock = item.currentStock <= item.minimumStockLevel;
+                return `<tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 text-sm text-gray-800 font-medium">${escapeHtml(item.itemCode || 'N/A')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(item.itemName || 'N/A')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(item.category || 'N/A')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(String(item.currentStock || 0))} ${escapeHtml(item.unit || '')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(String(item.minimumStockLevel || 0))} ${escapeHtml(item.unit || '')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800"><span class="inline-flex px-2 py-0.5 rounded-full text-xs ${isLowStock ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${isLowStock ? 'Low Stock' : 'Adequate'}</span></td>
+                </tr>`;
+            }).join('');
+            status.textContent = `${items.length} item(s)`;
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-red-600">Error loading inventory.</td></tr>';
+            status.textContent = 'Error';
+        }
+    }
+
+    async function loadProducts() {
+        const tbody = document.getElementById('display-products-tbody');
+        const status = document.getElementById('display-products-status');
+        try {
+            const response = await fetch('/api/products');
+            if (!response.ok) throw new Error('Failed to load products');
+            const products = await response.json();
+            if (!Array.isArray(products) || !products.length) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500">No products found.</td></tr>';
+                status.textContent = 'No data';
+                return;
+            }
+            tbody.innerHTML = products.map(p => {
+                const target = p.target != null ? p.target : '-';
+                const current = p.currentQuantity != null ? p.currentQuantity : '-';
+                const remaining = p.remainingQuantity != null ? p.remainingQuantity : '-';
+                return `<tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.productCode || '')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.productName || '')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${current}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${target}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${remaining}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.status || '')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.startingDate || '-')}</td>
+                  <td class="px-4 py-2 text-sm text-gray-800">${escapeHtml(p.endingDate || '-')}</td>
+                </tr>`;
+            }).join('');
+            status.textContent = `${products.length} product(s)`;
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-sm text-red-600">Error loading products.</td></tr>';
+            status.textContent = 'Error';
+        }
+    }
+
+    function refreshAllTables() {
+        loadPlans();
+        loadInventory();
+        loadProducts();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const dtEl = document.getElementById('display-datetime');
+        const monthFilter = document.getElementById('display-month-filter');
+        const refreshBtn = document.getElementById('refresh-all-btn');
+        const weekCbs = document.querySelectorAll('.display-week-checkbox');
+
+        function updateDateTime() {
+            if (dtEl) dtEl.textContent = new Date().toLocaleString();
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        if (monthFilter) {
+            monthFilter.addEventListener('change', () => {
+                displaySelectedMonth = monthFilter.value || 'all';
+                renderMonthly(displayPlans);
+            });
+        }
+        weekCbs.forEach(cb => cb.addEventListener('change', () => renderWeekly(displayPlans)));
+        if (refreshBtn) refreshBtn.addEventListener('click', refreshAllTables);
+
+        refreshAllTables();
+    });
+</script>
+</body>
+</html>
